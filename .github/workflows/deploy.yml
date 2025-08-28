@@ -40,15 +40,44 @@ jobs:
 
       - name: Debug build output
         run: |
-          echo "Build completed. Checking output:"
+          echo "=== BUILD OUTPUT ANALYSIS ==="
           echo "Current directory:"
           pwd
-          echo "Dist folder exists:"
-          ls -la ./vin-checker-frontend/dist/ 2>/dev/null || echo "No dist folder found"
-          echo "Contents of dist folder:"
-          ls -la ./vin-checker-frontend/dist/*/ 2>/dev/null || echo "No subdirectories in dist"
+          echo "Dist folder contents:"
+          ls -la ./vin-checker-frontend/dist/
+          echo "Subdirectory in dist:"
+          ls -la ./vin-checker-frontend/dist/*/
           echo "Looking for index.html:"
           find ./vin-checker-frontend/dist -name "index.html" 2>/dev/null || echo "index.html not found"
+          echo "File structure:"
+          find ./vin-checker-frontend/dist -type f -name "*.html" -o -name "*.js" | head -10
+
+      - name: Prepare for deployment
+        run: |
+          # Find the exact build directory
+          if [ -d "./vin-checker-frontend/dist/vin-checker-frontend" ]; then
+            echo "Using dist/vin-checker-frontend"
+            BUILD_DIR="./vin-checker-frontend/dist/vin-checker-frontend"
+          elif [ -d "./vin-checker-frontend/dist/browser" ]; then
+            echo "Using dist/browser"
+            BUILD_DIR="./vin-checker-frontend/dist/browser"
+          else
+            # Try to find any directory with index.html
+            BUILD_DIR=$(find ./vin-checker-frontend/dist -name "index.html" -exec dirname {} \; | head -1)
+            if [ -z "$BUILD_DIR" ]; then
+              echo "ERROR: Could not find build directory with index.html"
+              exit 1
+            fi
+            echo "Using found directory: $BUILD_DIR"
+          fi
+          
+          # Copy files to a consistent location
+          mkdir -p ./deploy
+          cp -r "$BUILD_DIR"/* ./deploy/
+          echo "Deployment files:"
+          ls -la ./deploy/
+          echo "Index.html exists:"
+          ls -la ./deploy/index.html 2>/dev/null || echo "No index.html in deploy folder"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -56,8 +85,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Try the most likely paths - adjust based on debug output
-          path: ./vin-checker-frontend/dist/vin-checker-frontend
+          path: ./deploy
 
       - name: Deploy to GitHub Pages
         id: deployment
