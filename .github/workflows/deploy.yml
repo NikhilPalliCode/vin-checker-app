@@ -38,46 +38,27 @@ jobs:
         run: npm run build -- --configuration production --base-href /vin-checker-app/
         working-directory: ./vin-checker-frontend
 
-      - name: Debug build output
+      - name: Verify build output structure
         run: |
-          echo "=== BUILD OUTPUT ANALYSIS ==="
-          echo "Current directory:"
-          pwd
-          echo "Dist folder contents:"
+          echo "=== BUILD OUTPUT STRUCTURE ==="
+          echo "Dist folder:"
           ls -la ./vin-checker-frontend/dist/
-          echo "Subdirectory in dist:"
-          ls -la ./vin-checker-frontend/dist/*/
-          echo "Looking for index.html:"
-          find ./vin-checker-frontend/dist -name "index.html" 2>/dev/null || echo "index.html not found"
-          echo "File structure:"
-          find ./vin-checker-frontend/dist -type f -name "*.html" -o -name "*.js" | head -10
+          echo "vin-checker-frontend subfolder:"
+          ls -la ./vin-checker-frontend/dist/vin-checker-frontend/
+          echo "browser subfolder (where files actually are):"
+          ls -la ./vin-checker-frontend/dist/vin-checker-frontend/browser/
+          echo "Checking for index.html:"
+          ls -la ./vin-checker-frontend/dist/vin-checker-frontend/browser/index.html || echo "index.html not found"
 
-      - name: Prepare for deployment
+      - name: Prepare deployment files
         run: |
-          # Find the exact build directory
-          if [ -d "./vin-checker-frontend/dist/vin-checker-frontend" ]; then
-            echo "Using dist/vin-checker-frontend"
-            BUILD_DIR="./vin-checker-frontend/dist/vin-checker-frontend"
-          elif [ -d "./vin-checker-frontend/dist/browser" ]; then
-            echo "Using dist/browser"
-            BUILD_DIR="./vin-checker-frontend/dist/browser"
-          else
-            # Try to find any directory with index.html
-            BUILD_DIR=$(find ./vin-checker-frontend/dist -name "index.html" -exec dirname {} \; | head -1)
-            if [ -z "$BUILD_DIR" ]; then
-              echo "ERROR: Could not find build directory with index.html"
-              exit 1
-            fi
-            echo "Using found directory: $BUILD_DIR"
-          fi
-          
-          # Copy files to a consistent location
-          mkdir -p ./deploy
-          cp -r "$BUILD_DIR"/* ./deploy/
-          echo "Deployment files:"
-          ls -la ./deploy/
-          echo "Index.html exists:"
-          ls -la ./deploy/index.html 2>/dev/null || echo "No index.html in deploy folder"
+          # Copy the actual build files to a clean location
+          mkdir -p ./deployment-ready
+          cp -r ./vin-checker-frontend/dist/vin-checker-frontend/browser/* ./deployment-ready/
+          echo "=== DEPLOYMENT READY FILES ==="
+          ls -la ./deployment-ready/
+          echo "Index.html verification:"
+          ls -la ./deployment-ready/index.html || echo "ERROR: No index.html found!"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -85,7 +66,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./deploy
+          path: ./deployment-ready
 
       - name: Deploy to GitHub Pages
         id: deployment
