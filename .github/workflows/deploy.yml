@@ -21,13 +21,20 @@ jobs:
         run: npm install
         working-directory: ./vin-checker-frontend
 
-      - name: Build
+      - name: Build Angular app
         run: npm run build -- --base-href /vin-checker-app/
         working-directory: ./vin-checker-frontend
+
+      - name: Debug - Check build output
+        run: |
+          echo "Checking build output directory:"
+          ls -la ./vin-checker-frontend/dist/
+          echo "Contents of dist folder:"
+          ls -la ./vin-checker-frontend/dist/*/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./vin-checker-frontend/dist/vin-checker-frontend
+          publish_dir: ./vin-checker-frontend/dist/browser
           enable_jekyll: false
