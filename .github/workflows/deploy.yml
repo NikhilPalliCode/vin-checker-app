@@ -4,13 +4,11 @@ on:
   push:
     branches: [ main ]
 
-# Grant necessary permissions
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -31,25 +29,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: vin-checker-frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./vin-checker-frontend
 
       - name: Build Angular app
-        run: npm run build -- --base-href /vin-checker-app/
+        run: npm run build -- --configuration production --base-href /vin-checker-app/
         working-directory: ./vin-checker-frontend
 
-      - name: Debug - Check build output
+      - name: Debug build output
         run: |
-          echo "Checking build output directory:"
-          ls -la ./vin-checker-frontend/dist/
+          echo "Build completed. Checking output:"
+          echo "Current directory:"
+          pwd
+          echo "Dist folder exists:"
+          ls -la ./vin-checker-frontend/dist/ 2>/dev/null || echo "No dist folder found"
           echo "Contents of dist folder:"
-          ls -la ./vin-checker-frontend/dist/*/
+          ls -la ./vin-checker-frontend/dist/*/ 2>/dev/null || echo "No subdirectories in dist"
           echo "Looking for index.html:"
-          find ./vin-checker-frontend/dist -name "index.html" 2>/dev/null || echo "No index.html found"
+          find ./vin-checker-frontend/dist -name "index.html" 2>/dev/null || echo "index.html not found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -57,7 +56,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./vin-checker-frontend/dist/browser
+          # Try the most likely paths - adjust based on debug output
+          path: ./vin-checker-frontend/dist/vin-checker-frontend
 
       - name: Deploy to GitHub Pages
         id: deployment
