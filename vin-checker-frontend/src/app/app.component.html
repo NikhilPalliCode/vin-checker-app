@@ -1,0 +1,138 @@
+<div class="container">
+  <h1>VIN Checker</h1>
+  <p>Enter a Vehicle Identification Number (VIN) to get comprehensive vehicle information</p>
+  
+  <div class="input-group">
+    <input 
+      type="text" 
+      [(ngModel)]="vin" 
+      placeholder="Enter 17-character VIN" 
+      maxlength="17"
+      (keyup.enter)="checkVin()"
+      class="vin-input"
+    >
+    <button (click)="checkVin()" [disabled]="loading" class="check-btn">
+      {{ loading ? 'Checking...' : 'Check VIN' }}
+    </button>
+  </div>
+  
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+  
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Fetching vehicle data...</p>
+    </div>
+  }
+  
+  @if (vehicleData) {
+    <div class="results">
+      <div class="tabs">
+        <button 
+          [class.active]="activeTab === 'basic'" 
+          (click)="activeTab = 'basic'"
+        >
+          Basic Info
+        </button>
+        <button 
+          [class.active]="activeTab === 'specs'" 
+          (click)="getVehicleSpecs()"
+        >
+          Specifications
+        </button>
+      </div>
+      
+      <!-- Basic Info Tab -->
+      @if (activeTab === 'basic') {
+        <div class="tab-content">
+          <h2>Basic Vehicle Information</h2>
+          <div class="info-card">
+            <div class="info-grid">
+              <div class="info-item">
+                <strong>VIN:</strong> {{ vin }}
+              </div>
+              <div class="info-item">
+                <strong>Make:</strong> {{ getVehicleDetail('Make') }}
+              </div>
+              <div class="info-item">
+                <strong>Model:</strong> {{ getVehicleDetail('Model') }}
+              </div>
+              <div class="info-item">
+                <strong>Year:</strong> {{ getVehicleDetail('Model Year') }}
+              </div>
+              <div class="info-item">
+                <strong>Body Style:</strong> {{ getVehicleDetail('Body Class') }}
+              </div>
+              <div class="info-item">
+                <strong>Engine:</strong> {{ getVehicleDetail('Engine Model') }}
+              </div>
+              <div class="info-item">
+                <strong>Fuel Type:</strong> {{ getVehicleDetail('Fuel Type - Primary') }}
+              </div>
+              <div class="info-item">
+                <strong>Transmission:</strong> {{ getVehicleDetail('Transmission Style') }}
+              </div>
+              <div class="info-item">
+                <strong>Drive Type:</strong> {{ getVehicleDetail('Drive Type') }}
+              </div>
+              <div class="info-item">
+                <strong>Plant Country:</strong> {{ getVehicleDetail('Plant Country') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      
+      <!-- Specifications Tab -->
+      @if (activeTab === 'specs' && vehicleSpecs) {
+        <div class="tab-content">
+          <h2>Vehicle Specifications</h2>
+          <div class="info-card">
+            <div class="info-grid">
+              <div class="info-item">
+                <strong>Make:</strong> {{ vehicleSpecs.Make || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Model:</strong> {{ vehicleSpecs.Model || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Year:</strong> {{ vehicleSpecs.ModelYear || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Body Type:</strong> {{ vehicleSpecs.BodyClass || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Engine:</strong> {{ vehicleSpecs.EngineModel || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Fuel Type:</strong> {{ vehicleSpecs.FuelTypePrimary || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Vehicle Type:</strong> {{ vehicleSpecs.VehicleType || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Series:</strong> {{ vehicleSpecs.Series || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Trim:</strong> {{ vehicleSpecs.Trim || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Plant City:</strong> {{ vehicleSpecs.PlantCity || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Plant State:</strong> {{ vehicleSpecs.PlantState || 'N/A' }}
+              </div>
+              <div class="info-item">
+                <strong>Plant Country:</strong> {{ vehicleSpecs.PlantCountry || 'N/A' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

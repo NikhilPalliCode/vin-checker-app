@@ -1,0 +1,5 @@
+package com.vinchecker.backend.controller;
+
+public class VinController {
+
+}

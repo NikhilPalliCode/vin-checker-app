@@ -1,0 +1,43 @@
+package com.vinchecker.backend.controller;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+@RequestMapping("/api/vin")
+public class VinController {
+    
+    @GetMapping("/check/{vin}")
+    public ResponseEntity<String> checkVin(@PathVariable String vin) {
+        try {
+            // Using NHTSA API - free government API for basic VIN decoding
+            String apiUrl = "https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/" + vin + "?format=json";
+            
+            RestTemplate restTemplate = new RestTemplate();
+            String result = restTemplate.getForObject(apiUrl, String.class);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching VIN data: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/specs/{vin}")
+    public ResponseEntity<String> getVehicleSpecs(@PathVariable String vin) {
+        try {
+            // Using NHTSA API for vehicle specifications
+            String apiUrl = "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/" + vin + "?format=json";
+            
+            RestTemplate restTemplate = new RestTemplate();
+            String result = restTemplate.getForObject(apiUrl, String.class);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching vehicle specs: " + e.getMessage());
+        }
+    }
+    
+    // Removed all other endpoints that were using mock data
+    // Only keeping the working NHTSA APIs
+}

@@ -1,0 +1,80 @@
+package com.vinchecker.backend.controller;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+@RequestMapping("/api/vin")
+public class VinController {
+    
+    @GetMapping("/check/{vin}")
+    public ResponseEntity<String> checkVin(@PathVariable String vin) {
+        try {
+            String apiUrl = "https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/" + vin + "?format=json";
+            RestTemplate restTemplate = new RestTemplate();
+            String result = restTemplate.getForObject(apiUrl, String.class);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching VIN data: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/specs/{vin}")
+    public ResponseEntity<String> getVehicleSpecs(@PathVariable String vin) {
+        try {
+            String apiUrl = "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/" + vin + "?format=json";
+            RestTemplate restTemplate = new RestTemplate();
+            String result = restTemplate.getForObject(apiUrl, String.class);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching vehicle specs: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/theft/{vin}")
+    public ResponseEntity<String> getTheftInfo(@PathVariable String vin) {
+        try {
+            // Mock data - in a real app, you would use NICB API or similar
+            String mockTheftData = "{\"status\": \"No theft records found\", \"lastChecked\": \"2023-11-15\", \"source\": \"NICB\"}";
+            return ResponseEntity.ok(mockTheftData);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching theft data: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/title/{vin}")
+    public ResponseEntity<String> getTitleInfo(@PathVariable String vin) {
+        try {
+            // Mock data - in a real app, you would use NMVTIS or similar service
+            String mockTitleData = "{\"titleStatus\": \"Clean\", \"titleBrands\": [], \"odometerReading\": \"85,420\", \"lastTitleDate\": \"2018-06-15\", \"lienholder\": \"None\"}";
+            return ResponseEntity.ok(mockTitleData);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching title data: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/accidents/{vin}")
+    public ResponseEntity<String> getAccidentRecords(@PathVariable String vin) {
+        try {
+            // Mock data - in a real app, you would use CARFAX or similar API
+            String mockAccidentData = "{\"totalAccidents\": 1, \"accidents\": [{\"date\": \"2020-02-14\", \"severity\": \"Moderate\", \"frontImpact\": true}], \"airbagDeployed\": true}";
+            return ResponseEntity.ok(mockAccidentData);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching accident data: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/recalls/{vin}")
+    public ResponseEntity<String> getRecallInfo(@PathVariable String vin) {
+        try {
+            // Using NHTSA recall API
+            String apiUrl = "https://api.nhtsa.gov/recalls/recallsByVehicle?vin=" + vin;
+            RestTemplate restTemplate = new RestTemplate();
+            String result = restTemplate.getForObject(apiUrl, String.class);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching recall data: " + e.getMessage());
+        }
+    }
+}
