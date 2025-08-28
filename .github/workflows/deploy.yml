@@ -19,15 +19,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./frontend
+        working-directory: ./vin-checker-frontend
 
       - name: Build
         run: npm run build -- --base-href /vin-checker-app/
-        working-directory: ./frontend
+        working-directory: ./vin-checker-frontend
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend/dist/browser
+          publish_dir: ./vin-checker-frontend/dist/vin-checker-frontend
           enable_jekyll: false
